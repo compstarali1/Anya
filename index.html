@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rain Video Full Fixed</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    overflow:hidden;
+    background:#000;
+    font-family:Arial, sans-serif;
+    touch-action: none;
+}
+
+/* VIDEO */
+video{
+    position:fixed;
+    top:0;left:0;
+    width:100vw;
+    height:100vh;
+    object-fit:cover;
+    z-index:-2;
+}
+
+/* BACKGROUND SLIDESHOW */
+.bg{
+    position:fixed;
+    top:0;left:0;
+    width:100%;
+    height:100%;
+    background-size:cover;
+    background-position:center;
+    opacity:0;
+    transition:opacity 1.2s ease-in-out;
+    z-index:-3;
+}
+.bg.active{opacity:1;}
+
+.overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    z-index:-1;
+}
+
+/* === 3D BUTTON STYLE === */
+.btn{
+    background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+    color:#ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding:10px 8px;
+    border-radius:12px;
+    font-weight: bold;
+    font-size: clamp(11px, 3vw, 14px);
+    text-shadow: 0 0 8px rgba(255,255,255,0.6);
+    box-shadow: 
+        0 6px 12px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(255,255,255,0.2) inset,
+        0 0 15px rgba(94, 156, 255, 0.4);
+    transform: translateY(0);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 
+        0 10px 20px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(255,255,255,0.3) inset,
+        0 0 25px rgba(147, 197, 253, 0.6);
+}
+.btn:active{
+    transform: translateY(1px);
+    box-shadow: 
+        0 3px 6px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(255,255,255,0.2) inset;
+}
+
+/* LOVE GRID - RESPONSIVE */
+.grid-btn{
+    position:fixed;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:100%;
+    max-width:750px;
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+    padding:0 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- SLIDES -->
+<div class="bg active" style="background-image:url('image1.jpg')"></div>
+<div class="bg" style="background-image:url('image2.jpg')"></div>
+<div class="bg" style="background-image:url('image3.jpg')"></div>
+<div class="bg" style="background-image:url('image4.jpg')"></div>
+<div class="bg" style="background-image:url('image5.jpg')"></div>
+
+<video id="video" playsinline autoplay muted></video>
+<div class="overlay"></div>
+
+<!-- LEFT CONTROLS -->
+<div style="position:fixed;top:10px;left:10px;z-index:2;display:flex;flex-direction:column;gap:8px;">
+    <button id="music1Btn" class="btn">🎵 Music 1</button>
+    <button id="music2Btn" class="btn">🎵 Music 2</button>
+    <button id="slideBtn" class="btn">🎞️ Slide ON</button>
+</div>
+
+<!-- RIGHT CONTROLS -->
+<div style="position:fixed;top:10px;right:10px;z-index:2;display:flex;flex-direction:column;gap:8px;">
+    <button id="soundBtn" class="btn">🔊 Sound ON</button>
+    <button id="stopBtn" class="btn">⏹️ Stop</button>
+</div>
+
+<!-- LOVE BUTTONS -->
+<div class="grid-btn">
+    <button class="btn love" data-i="0">LOVE 1</button>
+    <button class="btn love" data-i="1">LOVE 2</button>
+    <button class="btn love" data-i="2">LOVE 3</button>
+    <button class="btn love" data-i="3">LOVE 4</button>
+    <button class="btn love" data-i="4">LOVE 5</button>
+    <button class="btn love" data-i="5">LOVE 6</button>
+    <button class="btn love" data-i="6">LOVE 7</button>
+    <button class="btn love" data-i="7">LOVE 8</button>
+    <button class="btn love" data-i="8">LOVE 9</button>
+    <button class="btn love" data-i="9">LOVE 10</button>
+</div>
+
+<!-- AUDIO FILES -->
+<audio id="audio1" src="1.mp3">
+<audio id="audio2" src="2.mp3">
+
+<script>
+const video=document.getElementById('video');
+const sources=Array.from({length:10},(_,i)=>`${i+1}.mp4`);
+let current=0;
+
+// START AUTOPLAY
+// Browser needs muted to autoplay, then we unmute
+video.muted = true;
+video.play().then(() => {
+    // Successfully started
+    video.muted = false;
+}).catch(() => {
+    // If blocked, keep muted
+    video.muted = true;
+    document.getElementById('soundBtn').innerHTML = '🔇 Sound OFF';
+});
+
+// LOAD VIDEO
+function load(i){
+    current=i;
+    video.src=sources[i];
+    video.load();
+    video.play();
+}
+
+// SEQUENCE PLAY
+video.onended=()=>{
+    current=(current+1)%sources.length;
+    load(current);
+};
+
+// LOVE BUTTONS
+document.querySelectorAll('.love').forEach(btn=>{
+    btn.onclick=()=>load(parseInt(btn.dataset.i));
+});
+
+// SOUND TOGGLE
+let isMuted=false;
+document.getElementById('soundBtn').onclick=()=>{
+    isMuted=!isMuted;
+    video.muted=isMuted;
+    document.getElementById('soundBtn').innerHTML = isMuted ? '🔇 Sound OFF' : '🔊 Sound ON';
+};
+
+// STOP VIDEO
+document.getElementById('stopBtn').onclick=()=>{
+    video.pause();
+};
+
+// MUSIC CONTROLS
+const a1=document.getElementById('audio1');
+const a2=document.getElementById('audio2');
+
+document.getElementById('music1Btn').onclick=()=>{
+    a2.pause(); a2.currentTime=0;
+    a1.play();
+};
+document.getElementById('music2Btn').onclick=()=>{
+    a1.pause(); a1.currentTime=0;
+    a2.play();
+};
+
+// SLIDESHOW - FIXED SMOOTH TRANSITION
+const slides=document.querySelectorAll('.bg');
+let sIndex=0;
+let slideshowRunning=true;
+let slideInterval;
+
+function showSlide(index){
+    slides.forEach(s=>s.classList.remove('active'));
+    slides[index].classList.add('active');
+}
+
+function nextSlide(){
+    sIndex=(sIndex+1)%slides.length;
+    showSlide(sIndex);
+}
+
+// Start slideshow
+function startSlide(){
+    slideInterval = setInterval(nextSlide, 4000);
+}
+startSlide();
+
+document.getElementById('slideBtn').onclick=()=>{
+    slideshowRunning=!slideshowRunning;
+    if(slideshowRunning){
+        startSlide();
+        document.getElementById('slideBtn').innerHTML = '🎞️ Slide ON';
+    } else {
+        clearInterval(slideInterval);
+        document.getElementById('slideBtn').innerHTML = '⏸️ Slide OFF';
+    }
+};
+
+// START
+load(0);
+</script>
+
+</body>
+</html>
